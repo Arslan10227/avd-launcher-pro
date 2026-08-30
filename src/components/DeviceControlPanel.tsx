@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Shield,
+  ShieldCheck,
   Upload,
   Camera,
   RotateCcw,
@@ -27,6 +27,15 @@ import {
   Compass,
   Search,
   Sliders,
+  Send,
+  ExternalLink,
+  Settings,
+  Code,
+  Wifi,
+  Cpu,
+  Activity,
+  Play,
+  XCircle,
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { AdbDevice, InstallOptions, RootStatus } from "../types";
@@ -158,9 +167,9 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
       const res = await onCheckRoot(activeSerial);
       setRootStatus(res);
       if (res.rooted) {
-        toast.success("Root check successful: Device is running as Root (uid=0)");
+        toast.success("Root check successful: Device has SU root access (uid=0)");
       } else {
-        toast.info("Device is unrooted / running standard user privileges");
+        toast.info("Device is unrooted / standard user privileges");
       }
     } catch (e) {
       toast.error(`Root check failed: ${e}`);
@@ -244,7 +253,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     if (!activeSerial || !phoneNumber) return;
     try {
       await invoke("simulate_call", { serial: activeSerial, phoneNumber });
-      toast.success(`Incoming call initiated from ${phoneNumber}`);
+      toast.success(`Incoming call simulated from ${phoneNumber}`);
     } catch (e) {
       toast.error(`Call simulation failed: ${e}`);
     }
@@ -285,7 +294,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     try {
       setCellularState(state);
       await invoke("set_cellular_state", { serial: activeSerial, cellularState: state });
-      toast.success(`Cellular network state updated to: ${state}`);
+      toast.success(`Cellular radio state updated to: ${state}`);
     } catch (e) {
       toast.error(`Failed to set cellular state: ${e}`);
     }
@@ -296,9 +305,9 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     if (!activeSerial) return;
     try {
       await invoke("touch_fingerprint", { serial: activeSerial, fingerId: id });
-      toast.success(`Fingerprint #${id} sensor touch triggered`);
+      toast.success(`Fingerprint #${id} sensor touch simulated`);
     } catch (e) {
-      toast.error(`Fingerprint trigger failed: ${e}`);
+      toast.error(`Fingerprint simulation failed: ${e}`);
     }
   };
 
@@ -306,9 +315,9 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     if (!activeSerial) return;
     try {
       await invoke("remove_fingerprint", { serial: activeSerial });
-      toast.info("Fingerprint touch released");
+      toast.info("Fingerprint sensor released");
     } catch (e) {
-      toast.error(`Fingerprint remove failed: ${e}`);
+      toast.error(`Fingerprint release failed: ${e}`);
     }
   };
 
@@ -341,7 +350,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     if (!activeSerial || !textInput) return;
     try {
       await onSendText(activeSerial, textInput);
-      toast.success("Text input sent to device");
+      toast.success("Text input typed into focused element");
       setTextInput("");
     } catch (e) {
       toast.error(`Text input failed: ${e}`);
@@ -390,7 +399,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
     setShellOutput("");
     try {
       const res = await onExecuteShell(activeSerial, shellCmd.trim());
-      setShellOutput(res || "(Command completed with no output)");
+      setShellOutput(res || "(Command executed successfully with no output)");
     } catch (e) {
       setShellOutput(`Error: ${e}`);
     } finally {
@@ -426,11 +435,11 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
 
   return (
     <div className="device-control-panel">
-      {/* Top Device Switcher & Quick Status Bar */}
+      {/* Top Device Switcher & Status Banner */}
       <div className="device-bar">
         <div className="device-bar-left">
           <Smartphone size={18} className="text-accent" />
-          <span className="device-bar-label">Target Android Device:</span>
+          <span className="device-bar-label">Active Android Device:</span>
           {devices.length === 0 ? (
             <span className="no-devices-tag">No Active ADB Devices Connected</span>
           ) : (
@@ -457,58 +466,60 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
         </div>
       </div>
 
-      {/* Modern Tab Navigation */}
-      <div className="control-tabs-bar">
-        <button
-          className={`control-tab-btn ${activeTab === "keys" ? "active" : ""}`}
-          onClick={() => setActiveTab("keys")}
-        >
-          <Smartphone size={15} />
-          <span>Keypad & Hardware</span>
-        </button>
+      {/* Modern Studio Tabbed Navigation */}
+      <div className="control-tabs-container">
+        <div className="control-tabs-bar">
+          <button
+            className={`control-tab-btn ${activeTab === "keys" ? "active" : ""}`}
+            onClick={() => setActiveTab("keys")}
+          >
+            <Smartphone size={15} />
+            <span>Keypad & Hardware</span>
+          </button>
 
-        <button
-          className={`control-tab-btn ${activeTab === "sensors" ? "active" : ""}`}
-          onClick={() => setActiveTab("sensors")}
-        >
-          <Compass size={15} />
-          <span>3D Device Pose & Sensors</span>
-        </button>
+          <button
+            className={`control-tab-btn ${activeTab === "sensors" ? "active" : ""}`}
+            onClick={() => setActiveTab("sensors")}
+          >
+            <Compass size={15} />
+            <span>3D Device Pose & Sensors</span>
+          </button>
 
-        <button
-          className={`control-tab-btn ${activeTab === "display" ? "active" : ""}`}
-          onClick={() => setActiveTab("display")}
-        >
-          <Camera size={15} />
-          <span>Display & Screen Recording</span>
-        </button>
+          <button
+            className={`control-tab-btn ${activeTab === "display" ? "active" : ""}`}
+            onClick={() => setActiveTab("display")}
+          >
+            <Camera size={15} />
+            <span>Display & Screen Recording</span>
+          </button>
 
-        <button
-          className={`control-tab-btn ${activeTab === "cellular" ? "active" : ""}`}
-          onClick={() => setActiveTab("cellular")}
-        >
-          <Phone size={15} />
-          <span>Cellular & SMS</span>
-        </button>
+          <button
+            className={`control-tab-btn ${activeTab === "cellular" ? "active" : ""}`}
+            onClick={() => setActiveTab("cellular")}
+          >
+            <Phone size={15} />
+            <span>Cellular & SMS</span>
+          </button>
 
-        <button
-          className={`control-tab-btn ${activeTab === "packages" ? "active" : ""}`}
-          onClick={() => setActiveTab("packages")}
-        >
-          <Upload size={15} />
-          <span>Apps & Files</span>
-        </button>
+          <button
+            className={`control-tab-btn ${activeTab === "packages" ? "active" : ""}`}
+            onClick={() => setActiveTab("packages")}
+          >
+            <Upload size={15} />
+            <span>Apps & Files</span>
+          </button>
 
-        <button
-          className={`control-tab-btn ${activeTab === "system" ? "active" : ""}`}
-          onClick={() => setActiveTab("system")}
-        >
-          <Terminal size={15} />
-          <span>System, Root & Shell</span>
-        </button>
+          <button
+            className={`control-tab-btn ${activeTab === "system" ? "active" : ""}`}
+            onClick={() => setActiveTab("system")}
+          >
+            <Terminal size={15} />
+            <span>System, Root & Shell</span>
+          </button>
+        </div>
       </div>
 
-      {/* Tab 1: Keypad & Quick Actions */}
+      {/* Tab 1: Keypad & Hardware */}
       {activeTab === "keys" && (
         <div className="tab-pane">
           <div className="device-control-grid">
@@ -550,13 +561,14 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                 <div className="input-group">
                   <input
                     type="text"
-                    placeholder="Type text to send to focused Android field..."
+                    placeholder="Type text to send to active focus..."
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendText()}
                   />
                   <button className="btn btn-secondary" onClick={handleSendText}>
-                    Send Text
+                    <Send size={14} />
+                    <span>Send</span>
                   </button>
                 </div>
               </div>
@@ -572,7 +584,8 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                     onKeyDown={(e) => e.key === "Enter" && handleOpenUrl()}
                   />
                   <button className="btn btn-secondary" onClick={handleOpenUrl}>
-                    Launch URL
+                    <ExternalLink size={14} />
+                    <span>Launch</span>
                   </button>
                 </div>
               </div>
@@ -581,7 +594,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
             <div className="control-card">
               <div className="card-header">
                 <Fingerprint size={16} />
-                <h3>Biometrics & Quick Sensors</h3>
+                <h3>Biometrics & Quick Shortcuts</h3>
               </div>
 
               <div className="form-group">
@@ -596,31 +609,35 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                     <span>Touch Finger 2</span>
                   </button>
                   <button className="btn btn-subtle btn-sm" onClick={handleRemoveFingerprint}>
+                    <XCircle size={14} />
                     <span>Release Sensor</span>
                   </button>
                 </div>
               </div>
 
               <div className="form-group mt-3">
-                <label>Direct Navigation Intents</label>
+                <label>Direct System Settings Shortcuts</label>
                 <div className="btn-row-wrap">
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => onExecuteShell(activeSerial, "am start -a android.settings.SETTINGS")}
                   >
-                    Open Device Settings
+                    <Settings size={14} />
+                    <span>Device Settings</span>
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => onExecuteShell(activeSerial, "am start -a android.settings.APPLICATION_DEVELOPMENT_SETTINGS")}
                   >
-                    Developer Options
+                    <Code size={14} />
+                    <span>Developer Options</span>
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => onExecuteShell(activeSerial, "am start -a android.settings.WIRELESS_SETTINGS")}
                   >
-                    Wi-Fi & Network
+                    <Wifi size={14} />
+                    <span>Wi-Fi & Network</span>
                   </button>
                 </div>
               </div>
@@ -732,7 +749,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                 />
               </div>
 
-              <div className="btn-row-wrap mb-3">
+              <div className="btn-row-wrap mt-3">
                 <button className="btn btn-secondary btn-sm" onClick={handleSimulateCall}>
                   <PhoneCall size={14} />
                   <span>Simulate Incoming Call</span>
@@ -901,10 +918,12 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                 />
               </div>
 
-              <button className="btn btn-secondary btn-sm mt-2" onClick={handlePushFile}>
-                <FileUp size={14} />
-                <span>Push File to Device</span>
-              </button>
+              <div className="mt-3">
+                <button className="btn btn-secondary btn-sm" onClick={handlePushFile}>
+                  <FileUp size={14} />
+                  <span>Push File to Device</span>
+                </button>
+              </div>
             </div>
 
             <div className="control-card full-width-card">
@@ -959,24 +978,14 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
           <div className="device-control-grid">
             <div className="control-card">
               <div className="card-header">
-                <Shield size={16} />
-                <h3>Root Verification & Reboot</h3>
+                <ShieldCheck size={16} />
+                <h3>Root Verification & Remount</h3>
               </div>
 
               <div className="btn-row-wrap mb-2">
                 <button className="btn btn-secondary btn-sm" onClick={handleCheckRoot}>
-                  <Shield size={14} />
+                  <ShieldCheck size={14} />
                   <span>Check Root & Remount</span>
-                </button>
-                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial)}>
-                  <RotateCcw size={14} />
-                  <span>Reboot Device</span>
-                </button>
-                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial, "bootloader")}>
-                  <span>Bootloader</span>
-                </button>
-                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial, "recovery")}>
-                  <span>Recovery</span>
                 </button>
               </div>
 
@@ -999,6 +1008,28 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
               )}
             </div>
 
+            <div className="control-card">
+              <div className="card-header">
+                <RotateCcw size={16} />
+                <h3>Reboot & Power Operations</h3>
+              </div>
+
+              <div className="btn-row-wrap mb-2">
+                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial)}>
+                  <RotateCcw size={14} />
+                  <span>Reboot Device</span>
+                </button>
+                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial, "bootloader")}>
+                  <Cpu size={14} />
+                  <span>Bootloader Mode</span>
+                </button>
+                <button className="btn btn-secondary btn-sm" onClick={() => onReboot(activeSerial, "recovery")}>
+                  <Activity size={14} />
+                  <span>Recovery Mode</span>
+                </button>
+              </div>
+            </div>
+
             <div className="control-card full-width-card">
               <div className="card-header">
                 <Terminal size={16} />
@@ -1014,7 +1045,7 @@ export const DeviceControlPanel: React.FC<DeviceControlPanelProps> = ({
                   onKeyDown={(e) => e.key === "Enter" && handleExecuteShell()}
                 />
                 <button className="btn btn-primary" onClick={handleExecuteShell} disabled={runningShell}>
-                  <Terminal size={14} />
+                  <Play size={14} />
                   <span>{runningShell ? "Running..." : "Execute"}</span>
                 </button>
               </div>
