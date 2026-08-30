@@ -24,10 +24,13 @@ jobs:
         include:
           - platform: "windows-latest"
             target: "x86_64-pc-windows-msvc"
+            args: ""
           - platform: "ubuntu-22.04"
             target: "x86_64-unknown-linux-gnu"
+            args: ""
           - platform: "macos-latest"
-            target: "universal-apple-darwin"
+            target: "aarch64-apple-darwin"
+            args: ""
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -37,7 +40,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install Rust stable
@@ -48,7 +51,7 @@ jobs:
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: "src-tauri -> target"
 
       - name: Install Linux dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
@@ -66,6 +69,7 @@ jobs:
         with:
           tagName: ${{ github.event.inputs.version || github.ref_name || 'v1.0.0' }}
           releaseName: "Android Virtual Device Launcher Pro ${{ github.event.inputs.version || github.ref_name || 'v1.0.0' }}"
+          args: ${{ matrix.args }}
           releaseBody: |
             ### 🚀 Android Virtual Device Launcher Pro v1.0.0
             
@@ -73,7 +77,7 @@ jobs:
 
             #### 📦 Download Platform Binaries:
             - **Windows**: `.msi` (Installer) and `.exe` (Standalone)
-            - **macOS**: `.dmg` (Universal Intel / Apple Silicon)
+            - **macOS**: `.dmg` (Apple Silicon & Intel)
             - **Linux**: `.deb` (Debian/Ubuntu) and `.AppImage` (Universal Linux)
 
             #### ✨ Release Highlights:
