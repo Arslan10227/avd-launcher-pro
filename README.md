@@ -73,25 +73,25 @@ emulator -avd <name>
 AVD Launcher Pro is engineered with a high-performance modular Rust backend communicating asynchronously with a React 19 frontend:
 
 ```mermaid
-graph TD
-    UI[React 19 + TypeScript Frontend] <-->|Tauri v2 IPC (Async Commands & Events)| Core[Rust Backend]
-    
-    subgraph "Rust Modular Core"
-        Core --> SDK[sdk.rs: Multi-Source Path Engine]
-        Core --> AVD[avd.rs: AVD Scanner & Matching]
-        Core --> EMULATOR[emulator.rs: Process Spawner & CLI Builder]
-        Core --> ADB[adb.rs: Protected ADB Commands]
-        Core --> LOGCAT[logcat.rs: Live Stream Engine]
-        Core --> INI[config_editor.rs: Safe INI Parser]
-        Core --> SETTINGS[settings.rs: Configuration Store]
+flowchart TD
+    UI["React 19 + TypeScript Frontend"] <-->|"Tauri v2 IPC"| Core["Rust Modular Backend"]
+
+    subgraph CoreEngine ["Rust Core Engine"]
+        Core --> SDK["sdk.rs: Multi-Source Path Engine"]
+        Core --> AVD["avd.rs: AVD Scanner & Matching"]
+        Core --> EMULATOR["emulator.rs: CLI Builder & Process Spawner"]
+        Core --> ADB["adb.rs: Protected ADB Tools"]
+        Core --> LOGCAT["logcat.rs: Live Stream Engine"]
+        Core --> INI["config_editor.rs: Safe INI Parser"]
+        Core --> SETTINGS["settings.rs: Configuration Store"]
     end
 
-    subgraph "System & Android Subsystem"
-        SDK --> REG[Windows Registry / Env Vars]
-        EMULATOR --> EXEC[emulator.exe (CREATE_NO_WINDOW)]
-        ADB --> DAEMON[adb.exe (Async Timeout Guard)]
-        LOGCAT --> LOGS[adb logcat (Threadtime Buffer)]
-        INI --> DISK[config.ini + config.ini.bak]
+    subgraph SystemSubsystem ["System & Android Subsystem"]
+        SDK --> REG["System Registry & Environment Variables"]
+        EMULATOR --> EXEC["emulator.exe (CREATE_NO_WINDOW)"]
+        ADB --> DAEMON["adb.exe (Async Timeout Guard)"]
+        LOGCAT --> LOGS["adb logcat (Threadtime Buffer)"]
+        INI --> DISK["config.ini + Backup (.bak)"]
     end
 ```
 
