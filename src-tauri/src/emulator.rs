@@ -105,12 +105,6 @@ pub fn build_emulator_command(sdk: &SdkPaths, opts: &StartOptions) -> Command {
     if opts.no_audio {
         cmd.arg("-no-audio");
     }
-    if opts.no_audio_in {
-        cmd.arg("-no-audio-in");
-    }
-    if opts.no_audio_out {
-        cmd.arg("-no-audio-out");
-    }
     if let Some(cam) = &opts.camera_back {
         if !cam.trim().is_empty() {
             cmd.arg("-camera-back").arg(cam);

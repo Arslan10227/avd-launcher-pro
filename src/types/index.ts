@@ -66,8 +66,6 @@ export interface StartOptions {
 
   // Audio & Media
   no_audio: boolean;
-  no_audio_in: boolean;
-  no_audio_out: boolean;
   camera_back?: string;
   camera_front?: string;
 

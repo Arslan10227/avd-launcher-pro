@@ -124,8 +124,6 @@ pub struct StartOptions {
 
     // Audio & Media
     pub no_audio: bool,
-    pub no_audio_in: bool,
-    pub no_audio_out: bool,
     pub camera_back: Option<String>, // "emulated" | "webcam0" | "none"
     pub camera_front: Option<String>,
 

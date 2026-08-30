@@ -86,8 +86,6 @@ export const LaunchConfigModal: React.FC<LaunchConfigModalProps> = ({
 
     // Audio & Media
     no_audio: false,
-    no_audio_in: false,
-    no_audio_out: false,
     camera_back: "emulated",
     camera_front: "emulated",
 
@@ -137,8 +135,6 @@ export const LaunchConfigModal: React.FC<LaunchConfigModalProps> = ({
     if (options.no_accel) parts.push("-no-accel");
     else if (options.accel && options.accel !== "auto") parts.push(`-accel ${options.accel}`);
     if (options.no_audio) parts.push("-no-audio");
-    if (options.no_audio_in) parts.push("-no-audio-in");
-    if (options.no_audio_out) parts.push("-no-audio-out");
     if (options.camera_back) parts.push(`-camera-back ${options.camera_back}`);
     if (options.camera_front) parts.push(`-camera-front ${options.camera_front}`);
     if (options.netdelay && options.netdelay !== "none") parts.push(`-netdelay ${options.netdelay}`);
@@ -690,30 +686,6 @@ export const LaunchConfigModal: React.FC<LaunchConfigModalProps> = ({
                     <div>
                       <span className="chk-title">-no-audio</span>
                       <span className="chk-desc">Disable all audio input and output</span>
-                    </div>
-                  </label>
-
-                  <label className="checkbox-card">
-                    <input
-                      type="checkbox"
-                      checked={options.no_audio_in}
-                      onChange={(e) => setOptions({ ...options, no_audio_in: e.target.checked })}
-                    />
-                    <div>
-                      <span className="chk-title">-no-audio-in</span>
-                      <span className="chk-desc">Disable microphone / audio recording</span>
-                    </div>
-                  </label>
-
-                  <label className="checkbox-card">
-                    <input
-                      type="checkbox"
-                      checked={options.no_audio_out}
-                      onChange={(e) => setOptions({ ...options, no_audio_out: e.target.checked })}
-                    />
-                    <div>
-                      <span className="chk-title">-no-audio-out</span>
-                      <span className="chk-desc">Disable speaker / audio playback</span>
                     </div>
                   </label>
                 </div>
