@@ -93,6 +93,7 @@ pub struct RootStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(default)]
 pub struct StartOptions {
     pub name: String,
     // Boot & Lifecycle
@@ -150,7 +151,8 @@ pub struct StartOptions {
     pub extra_args: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(default)]
 pub struct LogcatOptions {
     pub serial: String,
     pub package: Option<String>,
@@ -159,7 +161,8 @@ pub struct LogcatOptions {
     pub buffer: Option<String>, // "main" | "system" | "crash" | "all"
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(default)]
 pub struct InstallOptions {
     pub serial: String,
     pub path: String,

@@ -198,6 +198,10 @@ function AppContent() {
       show_kernel: false,
       verbose: false,
       no_passive_gps: false,
+      no_mouse_reposition: false,
+      no_location_ui: false,
+      no_nested_warnings: false,
+      no_hidpi_scaling: false,
     });
   };
 
@@ -220,6 +224,10 @@ function AppContent() {
       show_kernel: false,
       verbose: false,
       no_passive_gps: false,
+      no_mouse_reposition: false,
+      no_location_ui: false,
+      no_nested_warnings: false,
+      no_hidpi_scaling: false,
     });
   };
 
@@ -242,6 +250,10 @@ function AppContent() {
       show_kernel: false,
       verbose: false,
       no_passive_gps: false,
+      no_mouse_reposition: false,
+      no_location_ui: false,
+      no_nested_warnings: false,
+      no_hidpi_scaling: false,
     });
   };
 
@@ -264,6 +276,10 @@ function AppContent() {
       show_kernel: false,
       verbose: false,
       no_passive_gps: false,
+      no_mouse_reposition: false,
+      no_location_ui: false,
+      no_nested_warnings: false,
+      no_hidpi_scaling: false,
       ...options,
     });
   };
