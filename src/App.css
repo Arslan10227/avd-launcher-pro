@@ -2084,6 +2084,311 @@ option {
 .ml-auto { margin-left: auto; }
 .spin { animation: spin 1s linear infinite; }
 
+/* Control Studio Tabs */
+.control-tabs-bar {
+  display: flex;
+  gap: 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.6rem;
+  overflow-x: auto;
+}
+
+.control-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.control-tab-btn:hover {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.control-tab-btn.active {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--accent-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tab-pane {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3D Virtual Device Rotator */
+.virtual-rotator-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.rotator-viewport-card,
+.rotator-controls-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.viewport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.viewport-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.drag-hint {
+  font-size: 11px;
+  color: var(--accent-primary);
+  background-color: rgba(56, 139, 253, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.viewport-3d-scene {
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #1b212c 0%, #0d1117 75%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: grab;
+  perspective: 900px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.viewport-3d-scene.dragging {
+  cursor: grabbing;
+}
+
+.device-3d-model {
+  width: 140px;
+  height: 250px;
+  background: #11141a;
+  border-radius: 24px;
+  border: 3px solid #2d333b;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.05);
+  transform-style: preserve-3d;
+  transition: transform 0.05s ease-out;
+}
+
+.phone-front {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.phone-earpiece {
+  width: 32px;
+  height: 3px;
+  background-color: #21262d;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.phone-camera {
+  width: 7px;
+  height: 7px;
+  background-color: #0b0f14;
+  border: 1px solid #30363d;
+  border-radius: 50%;
+  margin-bottom: 6px;
+}
+
+.phone-screen {
+  flex: 1;
+  width: 100%;
+  background: linear-gradient(145deg, #1f2937, #111827);
+  border-radius: 14px;
+  border: 1px solid #374151;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0.5rem;
+  overflow: hidden;
+}
+
+.screen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.screen-icon {
+  color: var(--accent-primary);
+  opacity: 0.8;
+}
+
+.screen-angles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #9ca3af;
+}
+
+.screen-nav-bar {
+  width: 40px;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.phone-power-btn {
+  position: absolute;
+  right: -5px;
+  top: 60px;
+  width: 3px;
+  height: 28px;
+  background-color: #374151;
+  border-radius: 2px;
+}
+
+.phone-volume-btn {
+  position: absolute;
+  left: -5px;
+  top: 50px;
+  width: 3px;
+  height: 50px;
+  background-color: #374151;
+  border-radius: 2px;
+}
+
+.angles-indicator-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.angle-chip {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 11.5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.angle-chip b {
+  color: var(--text-secondary);
+}
+
+.angle-chip span {
+  font-family: var(--font-mono);
+  color: var(--accent-primary);
+}
+
+.pose-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.preset-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.btn-reset-pose {
+  grid-column: 1 / -1;
+  justify-content: center;
+  background-color: var(--bg-input);
+  border-style: dashed;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.slider-label-row span {
+  font-family: var(--font-mono);
+  color: var(--accent-primary);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  outline: none;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
