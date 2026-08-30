@@ -121,8 +121,15 @@ pub fn list_avds_internal(
                     });
 
                     if let Some(dev) = matched_device {
-                        avd.is_running = true;
-                        avd.serial = Some(dev.serial.clone());
+                        if dev.state == "device" {
+                            avd.is_running = true;
+                            avd.serial = Some(dev.serial.clone());
+                        } else {
+                            avd.is_running = is_in_procs;
+                            if is_in_procs {
+                                avd.serial = Some(dev.serial.clone());
+                            }
+                        }
                     } else if is_in_procs {
                         avd.is_running = true;
                     }

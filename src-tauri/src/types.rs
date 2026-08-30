@@ -115,6 +115,10 @@ pub struct StartOptions {
     pub skin: Option<String>,
     pub screen_mode: Option<String>, // "touch" | "multi-touch" | "no-touch"
     pub no_passive_gps: bool,
+    pub no_mouse_reposition: bool,
+    pub no_location_ui: bool,
+    pub no_nested_warnings: bool,
+    pub no_hidpi_scaling: bool,
 
     // Graphics & Acceleration
     pub gpu: Option<String>, // "auto" | "host" | "swiftshader_indirect" | "angle_indirect" | "guest" | "off"

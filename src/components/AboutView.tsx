@@ -50,7 +50,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenUrl }) => {
         <div className="hero-info">
           <div className="hero-badge-row">
             <span className="pro-badge">PRO EDITION</span>
-            <span className="version-badge">v1.0.0</span>
+            <span className="version-badge">v1.1.0</span>
             <span className="status-badge-online">STABLE</span>
           </div>
           <h1 className="hero-title">Android Virtual Device Launcher Pro</h1>

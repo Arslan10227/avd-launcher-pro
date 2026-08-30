@@ -81,6 +81,18 @@ pub fn build_emulator_command(sdk: &SdkPaths, opts: &StartOptions) -> Command {
     if opts.no_passive_gps {
         cmd.arg("-no-passive-gps");
     }
+    if opts.no_mouse_reposition {
+        cmd.arg("-no-mouse-reposition");
+    }
+    if opts.no_location_ui {
+        cmd.arg("-no-location-ui");
+    }
+    if opts.no_nested_warnings {
+        cmd.arg("-no-nested-warnings");
+    }
+    if opts.no_hidpi_scaling {
+        cmd.arg("-no-hidpi-scaling");
+    }
 
     // Graphics & Acceleration
     if let Some(gpu) = &opts.gpu {

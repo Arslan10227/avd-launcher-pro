@@ -130,6 +130,10 @@ export const LaunchConfigModal: React.FC<LaunchConfigModalProps> = ({
     if (options.skin) parts.push(`-skin ${options.skin}`);
     if (options.screen_mode) parts.push(`-screen ${options.screen_mode}`);
     if (options.no_passive_gps) parts.push("-no-passive-gps");
+    if (options.no_mouse_reposition) parts.push("-no-mouse-reposition");
+    if (options.no_location_ui) parts.push("-no-location-ui");
+    if (options.no_nested_warnings) parts.push("-no-nested-warnings");
+    if (options.no_hidpi_scaling) parts.push("-no-hidpi-scaling");
     if (options.gpu && options.gpu !== "default") parts.push(`-gpu ${options.gpu}`);
     if (options.feature) parts.push(`-feature ${options.feature}`);
     if (options.no_accel) parts.push("-no-accel");
@@ -546,6 +550,54 @@ export const LaunchConfigModal: React.FC<LaunchConfigModalProps> = ({
                     <div>
                       <span className="chk-title">-no-passive-gps</span>
                       <span className="chk-desc">Disable passive GPS updates</span>
+                    </div>
+                  </label>
+
+                  <label className="checkbox-card">
+                    <input
+                      type="checkbox"
+                      checked={options.no_mouse_reposition || false}
+                      onChange={(e) => setOptions({ ...options, no_mouse_reposition: e.target.checked })}
+                    />
+                    <div>
+                      <span className="chk-title">-no-mouse-reposition</span>
+                      <span className="chk-desc">Do not capture or recenter mouse cursor</span>
+                    </div>
+                  </label>
+
+                  <label className="checkbox-card">
+                    <input
+                      type="checkbox"
+                      checked={options.no_location_ui || false}
+                      onChange={(e) => setOptions({ ...options, no_location_ui: e.target.checked })}
+                    />
+                    <div>
+                      <span className="chk-title">-no-location-ui</span>
+                      <span className="chk-desc">Disable location UI in extended window</span>
+                    </div>
+                  </label>
+
+                  <label className="checkbox-card">
+                    <input
+                      type="checkbox"
+                      checked={options.no_nested_warnings || false}
+                      onChange={(e) => setOptions({ ...options, no_nested_warnings: e.target.checked })}
+                    />
+                    <div>
+                      <span className="chk-title">-no-nested-warnings</span>
+                      <span className="chk-desc">Disable nested virtualization warnings</span>
+                    </div>
+                  </label>
+
+                  <label className="checkbox-card">
+                    <input
+                      type="checkbox"
+                      checked={options.no_hidpi_scaling || false}
+                      onChange={(e) => setOptions({ ...options, no_hidpi_scaling: e.target.checked })}
+                    />
+                    <div>
+                      <span className="chk-title">-no-hidpi-scaling</span>
+                      <span className="chk-desc">Disable HiDPI guest scaling</span>
                     </div>
                   </label>
                 </div>

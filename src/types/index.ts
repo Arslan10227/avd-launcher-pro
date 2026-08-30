@@ -57,6 +57,10 @@ export interface StartOptions {
   skin?: string;
   screen_mode?: string;
   no_passive_gps: boolean;
+  no_mouse_reposition?: boolean;
+  no_location_ui?: boolean;
+  no_nested_warnings?: boolean;
+  no_hidpi_scaling?: boolean;
 
   // Graphics & Acceleration
   gpu?: string;

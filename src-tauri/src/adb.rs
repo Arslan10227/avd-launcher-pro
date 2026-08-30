@@ -74,21 +74,20 @@ pub async fn list_devices(adb: &str) -> AppResult<Vec<AdbDevice>> {
     let out = run_adb(adb, None, &["devices", "-l"]).await?;
     let mut devices = parse_adb_devices_text(&out);
 
-    // Try resolving AVD name for emulator devices
     for dev in devices.iter_mut() {
-        if dev.serial.starts_with("emulator-") && dev.state == "device" {
-            if let Ok(name_out) = run_adb(adb, Some(&dev.serial), &["emu", "avd", "name"]).await {
-                let first_line = name_out.lines().next().unwrap_or("").trim();
-                if !first_line.is_empty() && !first_line.to_lowercase().contains("error") {
-                    dev.avd_name = Some(first_line.to_string());
+        if dev.state == "device" {
+            // Query avd_name from emulator / system property
+            if let Ok(avd_prop) = run_adb(adb, Some(&dev.serial), &["shell", "getprop", "ro.boot.qemu.avd_name"]).await {
+                let name = avd_prop.trim().to_string();
+                if !name.is_empty() && !name.contains("error") {
+                    dev.avd_name = Some(name);
+                    continue;
                 }
             }
-            if dev.avd_name.is_none() {
-                if let Ok(prop) = run_adb(adb, Some(&dev.serial), &["shell", "getprop", "ro.boot.qemu.avd_name"]).await {
-                    let val = prop.trim().to_string();
-                    if !val.is_empty() {
-                        dev.avd_name = Some(val);
-                    }
+            if let Ok(emu_name) = run_adb(adb, Some(&dev.serial), &["emu", "avd", "name"]).await {
+                let first_line = emu_name.lines().next().unwrap_or("").trim().to_string();
+                if !first_line.is_empty() && !first_line.starts_with("OK") && !first_line.contains("error") {
+                    dev.avd_name = Some(first_line);
                 }
             }
         }
@@ -114,7 +113,6 @@ pub async fn check_root(adb: &str, serial: &str) -> AppResult<RootStatus> {
         }
     }
 
-    // Try adb root if not already root
     if !rooted {
         if let Ok(root_cmd_out) = run_adb(adb, Some(serial), &["root"]).await {
             output.push_str(&format!("\nadb root: {}", root_cmd_out));
@@ -184,6 +182,9 @@ pub async fn restart_adb_server(adb: &str) -> AppResult<String> {
 
 pub async fn capture_screenshot(adb: &str, serial: &str) -> AppResult<String> {
     let mut cmd = Command::new(adb);
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
     cmd.arg("-s").arg(serial).args(["exec-out", "screencap", "-p"]);
 
     let fut = cmd.output();
@@ -208,7 +209,6 @@ pub async fn send_key_event(adb: &str, serial: &str, keycode: &str) -> AppResult
 }
 
 pub async fn send_text_input(adb: &str, serial: &str, text: &str) -> AppResult<String> {
-    // Replace spaces with %s for adb input text
     let escaped = text.replace(' ', "%s");
     run_adb(adb, Some(serial), &["shell", "input", "text", &escaped]).await
 }
@@ -223,7 +223,7 @@ pub async fn open_url(adb: &str, serial: &str, url: &str) -> AppResult<String> {
 }
 
 pub async fn list_packages(adb: &str, serial: &str, filter: Option<&str>) -> AppResult<Vec<String>> {
-    let mut args = vec!["shell", "pm", "list", "packages", "-3"]; // 3rd party by default or all if requested
+    let mut args = vec!["shell", "pm", "list", "packages", "-3"];
     if let Some(f) = filter {
         if f == "all" {
             args[4] = "";
@@ -250,6 +250,93 @@ pub async fn execute_shell_command(adb: &str, serial: &str, command: &str) -> Ap
 
 pub async fn push_file(adb: &str, serial: &str, local_path: &str, remote_path: &str) -> AppResult<String> {
     run_adb(adb, Some(serial), &["push", local_path, remote_path]).await
+}
+
+// ----------------- Cellular & Phone / SMS -----------------
+
+pub async fn simulate_call(adb: &str, serial: &str, phone_number: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "gsm", "call", phone_number]).await
+}
+
+pub async fn cancel_call(adb: &str, serial: &str, phone_number: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "gsm", "cancel", phone_number]).await
+}
+
+pub async fn accept_call(adb: &str, serial: &str, phone_number: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "gsm", "accept", phone_number]).await
+}
+
+pub async fn send_sms_message(adb: &str, serial: &str, phone_number: &str, text: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "sms", "send", phone_number, text]).await
+}
+
+pub async fn set_cellular_state(adb: &str, serial: &str, state: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "gsm", "data", state]).await
+}
+
+// ----------------- Fingerprint Sensor -----------------
+
+pub async fn touch_fingerprint(adb: &str, serial: &str, finger_id: u32) -> AppResult<String> {
+    let id_str = finger_id.to_string();
+    run_adb(adb, Some(serial), &["emu", "finger", "touch", &id_str]).await
+}
+
+pub async fn remove_fingerprint(adb: &str, serial: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "finger", "remove"]).await
+}
+
+// ----------------- Orientation & Virtual Sensors -----------------
+
+pub async fn set_device_rotation(adb: &str, serial: &str, rotation: u32) -> AppResult<String> {
+    let _ = run_adb(adb, Some(serial), &["shell", "settings", "put", "system", "accelerometer_rotation", "0"]).await;
+    let rot_str = rotation.to_string();
+    run_adb(adb, Some(serial), &["shell", "settings", "put", "system", "user_rotation", &rot_str]).await
+}
+
+pub async fn set_sensor_values(adb: &str, serial: &str, sensor: &str, values: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["emu", "sensor", "set", sensor, values]).await
+}
+
+// ----------------- Secondary Screen Overlay -----------------
+
+pub async fn set_secondary_display_overlay(adb: &str, serial: &str, spec: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["shell", "settings", "put", "global", "overlay_display_devices", spec]).await
+}
+
+// ----------------- Screen Recording -----------------
+
+pub async fn start_screen_record(adb: &str, serial: &str, bit_rate_mbps: Option<u32>, time_limit_sec: Option<u32>) -> AppResult<String> {
+    let bit_rate = bit_rate_mbps.unwrap_or(4) * 1000000;
+    let time_limit = time_limit_sec.unwrap_or(180);
+    let bit_str = bit_rate.to_string();
+    let time_str = time_limit.to_string();
+
+    let mut cmd = Command::new(adb);
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    cmd.arg("-s").arg(serial).args([
+        "shell",
+        "screenrecord",
+        "/sdcard/Download/avd_recording.mp4",
+        "--bit-rate",
+        &bit_str,
+        "--time-limit",
+        &time_str,
+    ]);
+
+    cmd.spawn().map_err(|e| AppError::Message(format!("Failed to start screenrecord: {}", e)))?;
+    Ok("Screen recording started on device".into())
+}
+
+pub async fn stop_screen_record(adb: &str, serial: &str) -> AppResult<String> {
+    let out = run_adb(adb, Some(serial), &["shell", "pkill", "-2", "screenrecord"]).await?;
+    tokio::time::sleep(Duration::from_millis(1500)).await;
+    Ok(out)
+}
+
+pub async fn pull_screen_record(adb: &str, serial: &str, local_dest: &str) -> AppResult<String> {
+    run_adb(adb, Some(serial), &["pull", "/sdcard/Download/avd_recording.mp4", local_dest]).await
 }
 
 #[cfg(test)]

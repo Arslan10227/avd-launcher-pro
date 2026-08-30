@@ -6,7 +6,9 @@ import {
   CheckCircle,
   AlertCircle,
   Monitor,
+  Folder,
 } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
 import { AppSettings, SdkPaths } from "../types";
 
 interface SettingsViewProps {
@@ -56,6 +58,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     }
   };
 
+  const handleBrowseSdkRoot = async () => {
+    try {
+      const path = await invoke<string | null>("pick_folder");
+      if (path) {
+        setForm({ ...form, sdk_root: path });
+      }
+    } catch (e) {
+      console.error("Folder picker error", e);
+    }
+  };
+
+  const handleBrowseAvdHome = async () => {
+    try {
+      const path = await invoke<string | null>("pick_folder");
+      if (path) {
+        setForm({ ...form, avd_home: path });
+      }
+    } catch (e) {
+      console.error("Folder picker error", e);
+    }
+  };
+
   return (
     <div className="settings-view">
       <div className="settings-header">
@@ -88,59 +112,80 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               Android SDK Root Override
               <span className="field-hint">Leave blank for auto-detection</span>
             </label>
-            <input
-              type="text"
-              placeholder="e.g. C:\Users\<User>\AppData\Local\Android\Sdk"
-              value={form.sdk_root || ""}
-              onChange={(e) => setForm({ ...form, sdk_root: e.target.value || undefined })}
-            />
+            <div className="input-with-browse">
+              <input
+                type="text"
+                placeholder="e.g. C:\Users\<User>\AppData\Local\Android\Sdk"
+                value={form.sdk_root || ""}
+                onChange={(e) => setForm({ ...form, sdk_root: e.target.value || undefined })}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleBrowseSdkRoot}
+                title="Choose SDK Folder"
+              >
+                <Folder size={14} />
+                <span>Browse...</span>
+              </button>
+            </div>
           </div>
 
           <div className="form-group">
             <label>
-              AVD Home Directory Override
-              <span className="field-hint">Leave blank for auto-detection (.android\avd)</span>
+              AVD Storage Home Override (ANDROID_AVD_HOME)
+              <span className="field-hint">Leave blank for default (~/.android/avd)</span>
             </label>
-            <input
-              type="text"
-              placeholder="e.g. C:\Users\<User>\.android\avd"
-              value={form.avd_home || ""}
-              onChange={(e) => setForm({ ...form, avd_home: e.target.value || undefined })}
-            />
+            <div className="input-with-browse">
+              <input
+                type="text"
+                placeholder="e.g. C:\Users\<User>\.android\avd"
+                value={form.avd_home || ""}
+                onChange={(e) => setForm({ ...form, avd_home: e.target.value || undefined })}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleBrowseAvdHome}
+                title="Choose AVD Folder"
+              >
+                <Folder size={14} />
+                <span>Browse...</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="card-actions">
+            <button className="btn btn-secondary btn-sm" onClick={handleDetect}>
+              <FolderSearch size={14} />
+              <span>Auto-Detect Environment</span>
+            </button>
           </div>
 
           {sdk && (
             <div className="detected-paths-box">
-              <h4>Currently Active Paths:</h4>
-              <div className="path-row">
-                <span className="path-label">SDK Root:</span>
-                <code>{sdk.sdk_root}</code>
+              <h4>Currently Active Paths</h4>
+              <div className="path-item">
+                <b>SDK Root:</b> <code>{sdk.sdk_root}</code>
               </div>
-              <div className="path-row">
-                <span className="path-label">AVD Home:</span>
-                <code>{sdk.avd_home}</code>
+              <div className="path-item">
+                <b>AVD Home:</b> <code>{sdk.avd_home}</code>
               </div>
-              <div className="path-row">
-                <span className="path-label">Emulator Binary:</span>
-                <code>{sdk.emulator}</code>
+              <div className="path-item">
+                <b>Emulator:</b> <code>{sdk.emulator}</code>
               </div>
-              <div className="path-row">
-                <span className="path-label">ADB Binary:</span>
-                <code>{sdk.adb}</code>
+              <div className="path-item">
+                <b>ADB:</b> <code>{sdk.adb}</code>
               </div>
             </div>
           )}
-
-          <button className="btn btn-secondary mt-2" onClick={handleDetect}>
-            Test & Detect Paths
-          </button>
         </div>
 
-        {/* Emulator Launch Defaults */}
+        {/* Global Default Options */}
         <div className="settings-card">
           <div className="card-header">
             <Monitor size={18} />
-            <h3>Emulator Launch Defaults</h3>
+            <h3>Default Emulator Preferences</h3>
           </div>
 
           <div className="form-group">
@@ -149,52 +194,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               value={form.default_gpu || "host"}
               onChange={(e) => setForm({ ...form, default_gpu: e.target.value })}
             >
-              <option value="host">Host (Direct GPU - Fastest)</option>
-              <option value="swiftshader_indirect">SwiftShader (Software CPU)</option>
-              <option value="angle_indirect">ANGLE (Direct3D Translation)</option>
-              <option value="guest">Guest</option>
-              <option value="auto">Auto</option>
+              <option value="host">Host (Direct GPU Hardware Acceleration)</option>
+              <option value="swiftshader_indirect">SwiftShader (CPU Software Rendering)</option>
+              <option value="angle_indirect">ANGLE (Direct3D 11 Translation)</option>
+              <option value="guest">Guest (Guest Emulated GPU)</option>
+              <option value="auto">Auto (Let Emulator Decide)</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label>Default Feature Flags</label>
+            <label>
+              Default Feature Flags
+              <span className="field-hint">Comma-separated flags (+/-)</span>
+            </label>
             <input
               type="text"
+              placeholder="ForceANGLE,ForceGpuHost,-ForceSwiftshader"
               value={form.default_features || ""}
-              onChange={(e) => setForm({ ...form, default_features: e.target.value })}
+              onChange={(e) => setForm({ ...form, default_features: e.target.value || undefined })}
             />
           </div>
 
           <div className="form-group">
-            <label>Logcat Max Buffer Lines</label>
+            <label>Interface Theme</label>
             <select
-              value={form.log_buffer_size || 1000}
-              onChange={(e) =>
-                setForm({ ...form, log_buffer_size: parseInt(e.target.value, 10) })
-              }
+              value={form.theme || "dark"}
+              onChange={(e) => setForm({ ...form, theme: e.target.value as "dark" | "light" | "system" })}
             >
-              <option value={500}>500 lines</option>
-              <option value={1000}>1,000 lines</option>
-              <option value={2000}>2,000 lines</option>
-              <option value={5000}>5,000 lines</option>
+              <option value="dark">Dark Theme (Default)</option>
+              <option value="light">Light Theme</option>
+              <option value="system">System Default</option>
             </select>
-          </div>
-
-          <div className="form-group">
-            <label>ADB Devices Polling Interval (seconds)</label>
-            <input
-              type="number"
-              min={1}
-              max={60}
-              value={form.auto_refresh_interval_sec || 3}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  auto_refresh_interval_sec: parseInt(e.target.value, 10) || 3,
-                })
-              }
-            />
           </div>
         </div>
       </div>
@@ -202,7 +232,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div className="settings-footer">
         <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
           <Save size={16} />
-          <span>Save Settings</span>
+          <span>{saving ? "Saving..." : "Save Settings"}</span>
         </button>
       </div>
     </div>
